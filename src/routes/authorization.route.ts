@@ -11,8 +11,7 @@ authorizationRoute.post('/token', async (req: Request, res: Response, next: Next
         if (!authorizationHeader) {
             throw new ForbiddenError('Credenciais não encontradas');
         }
-        //Basic YWRtaW46YWRtaW4=
-
+        
         const [authenticationType, token] = authorizationHeader.split('');
 
         if (authenticationType !== 'Basic' || !token) {
