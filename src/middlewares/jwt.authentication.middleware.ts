@@ -3,7 +3,7 @@ import ForbiddenError from '../models/error/forbidden.error.model';
 import JWT from 'jsonwebtoken';
 import userRepository from '../repositories/user.repository';
 
-async function bearerAthenticationMiddleware (req:Request, res:Response, next:NextFunction) {
+async function jwtAthenticationMiddleware (req:Request, res:Response, next:NextFunction) {
     try{
         const authorizationHeader = req.headers['authorization'];
 
@@ -17,21 +17,24 @@ async function bearerAthenticationMiddleware (req:Request, res:Response, next:Ne
             throw new ForbiddenError('Tipo de autenticação inválido');
         }
 
-       const tokenPayload = JWT.verify(token, 'my_secret_key');
-
-       
+        try {
+            const tokenPayload = JWT.verify(token, 'my_secret_key');       
 
        if (typeof tokenPayload !== 'object' || !tokenPayload.sub) {
-           throw new ForbiddenError('Token Inválido!')
+           throw new ForbiddenError('Token Inválido!');
        }
 
-        const uuid = tokenPayload.sub;
         const user = { uuid: tokenPayload.sub, username: tokenPayload.username };
+        
         req.user = user;
         next();
+        } catch (error) {
+            throw new ForbiddenError('Token Inválido!');
+        }   
+        
     } catch (error) {
         next(error);
     }
 }
 
-export default bearerAthenticationMiddleware;
+export default jwtAthenticationMiddleware;
